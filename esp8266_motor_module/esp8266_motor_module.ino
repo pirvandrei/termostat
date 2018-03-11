@@ -91,7 +91,7 @@ void setup() {
   Serial.println(F("IP address: "));
   Serial.println(WiFi.localIP());
 
-  // listen for events on the lamp feed
+  // listen for events on the motor feed
   mqtt.subscribe(&motor);
 
   // connect to adafruit io
@@ -113,7 +113,7 @@ void loop() {
   // this is our 'wait for incoming subscription packets' busy subloop
   while (subscription = mqtt.readSubscription(1000)) {
 
-    // we only care about the lamp events
+    // we only care about the motor events
     if (subscription == &motor) {
 
       // convert mqtt ascii payload to int
