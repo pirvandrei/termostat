@@ -23,8 +23,8 @@
 #define DHTTYPE DHT11 
 
 // WiFi parameters
-#define WLAN_SSID       "Andrei" 
-#define WLAN_PASS       "11111111"
+#define WLAN_SSID       "EmbedNet2"
+#define WLAN_PASS       "betonprint"
 
 // Adafruit IO
 #define AIO_SERVER      "io.adafruit.com"
