@@ -1,6 +1,6 @@
 /***************************************************
   Adafruit ESP8266 Lamp Controller Module
-  
+
   Must use ESP8266 Arduino from:
     https://github.com/esp8266/Arduino
   Works great with Adafruit's Huzzah ESP board:
@@ -18,7 +18,9 @@
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
 
-
+//temperature
+#define TEMP_DESIRED  24
+#define TEMP_ALIEVE   false
 
 // WiFi parameters
 #define WLAN_SSID       "EmbedNet2"
@@ -57,16 +59,19 @@ Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, AIO_SERVERPORT, MQTT_CLIENTID, M
 const char Motor_FEED[]   = AIO_USERNAME "/feeds/motor";
 Adafruit_MQTT_Subscribe motor = Adafruit_MQTT_Subscribe(&mqtt, Motor_FEED);
 
+const char LAMP_FEED[]  = AIO_USERNAME "/feeds/temperature";
+Adafruit_MQTT_Subscribe temp = Adafruit_MQTT_Subscribe(&mqtt, LAMP_FEED);
+
 /*************************** Sketch Code ************************************/
 
 int motorASpeed = 1023;
- 
+
 #define motor_a_speed 5
 #define motor_a_dir 0
 
 void setup() {
 
-  // Set motor  pin to output 
+  // Set motor  pin to output
   pinMode(motor_a_speed, OUTPUT);  // speed
   pinMode(motor_a_dir, OUTPUT);
 
@@ -93,7 +98,7 @@ void setup() {
 
   // listen for events on the motor feed
   mqtt.subscribe(&motor);
-
+  mqtt.subscribe(&temp);
   // connect to adafruit io
   connect();
 
@@ -104,9 +109,9 @@ void loop() {
   Adafruit_MQTT_Subscribe *subscription;
 
   // ping adafruit io a few times to make sure we remain connected
-  if(! mqtt.ping(3)) {
+  if (! mqtt.ping(3)) {
     // reconnect to adafruit io
-    if(! mqtt.connected())
+    if (! mqtt.connected())
       connect();
   }
 
@@ -118,7 +123,7 @@ void loop() {
 
       // convert mqtt ascii payload to int
       char *value = (char *)motor.lastread;
-      Serial.print(F("Received: "));
+      Serial.print(F("Received command: "));
       Serial.println(value);
 
       // Apply message to lamp
@@ -127,14 +132,32 @@ void loop() {
       if (message == "ON") {
         analogWrite(motor_a_speed, motorASpeed);
         digitalWrite(motor_a_dir, 0);
-        }
+      }
       if (message == "OFF") {
         analogWrite(motor_a_speed, motorASpeed);
         digitalWrite(motor_a_dir, 1);
-        } 
-    } 
-  } 
-} 
+      }
+    } else if (subscription == &temp) {
+
+      char *value = (char *)temp.lastread;
+      int x = String(value).toInt();
+
+      Serial.print(F("Received temp: "));
+      Serial.println(x);
+
+      if (x >= TEMP_DESIRED)
+      {
+        analogWrite(motor_a_speed, motorASpeed);
+        digitalWrite(motor_a_dir, 0);
+      }
+      else if (x < TEMP_DESIRED)
+      {
+        analogWrite(motor_a_speed, motorASpeed);
+        digitalWrite(motor_a_dir, 1);
+      }
+    }
+  }
+}
 
 // connect to adafruit io via MQTT
 void connect() {
@@ -155,7 +178,7 @@ void connect() {
       default: Serial.println(F("Connection failed")); break;
     }
 
-    if(ret >= 0)
+    if (ret >= 0)
       mqtt.disconnect();
 
     Serial.println(F("Retrying connection..."));
