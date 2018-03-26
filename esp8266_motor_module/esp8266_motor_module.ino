@@ -123,7 +123,7 @@ void loop() {
       Serial.print(F("Received command: "));
       Serial.println(value);
 
-      // Apply message to lamp
+      // execute command from server
       String message = String(value);
       message.trim();
       if (message == "ON") {
@@ -134,7 +134,10 @@ void loop() {
         analogWrite(motor_a_speed, motorASpeed);
         digitalWrite(motor_a_dir, 1);
       }
-    } else if (subscription == &temp) {
+    }
+    
+    // Listen to temp values 
+    else if (subscription == &temp) {
 
       char *value = (char *)temp.lastread;
       int x = String(value).toInt();
@@ -142,19 +145,30 @@ void loop() {
       Serial.print(F("Received temp: "));
       Serial.println(x);
 
+      // Received temp value less then 24, increase a bit the motor
       if (x < TEMP_DESIRED)
       {
         //turn on
+        Serial.println(F("Turning ON: "));
         analogWrite(motor_a_speed, motorASpeed);
-        digitalWrite(motor_a_dir, 0);
-        Serial.print(F("Turning on: "));
+        digitalWrite(motor_a_dir, 1);
+        
       }
       else if (x >= TEMP_OUTSIDE)
       {
+        // Received out temp value less then 24, so keep the motor off
         //turn off 
+        Serial.println(F("Turning OFF: "));
         analogWrite(motor_a_speed, motorASpeed);
-        digitalWrite(motor_a_dir, 1);
-        Serial.print(F("Turning off: "));
+        digitalWrite(motor_a_dir, 0); 
+      }
+      else if (x == TEMP_OUTSIDE)
+      {
+        // same temp, reduce a bit !!!!
+        //turn off 
+        Serial.println(F("Turning OFF: "));
+        analogWrite(motor_a_speed, motorASpeed);
+        digitalWrite(motor_a_dir, 0); 
       }
     }
   }
