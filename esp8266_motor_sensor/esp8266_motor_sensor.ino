@@ -150,7 +150,7 @@ void loop() {
     Serial.println(F("Humidity published!"));
 
   // Repeat every 10 seconds
-  delay(10000);
+  delay(5000);
 
 }
 

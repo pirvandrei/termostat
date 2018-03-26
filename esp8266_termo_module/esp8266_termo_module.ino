@@ -1,6 +1,6 @@
 /***************************************************
   Adafruit ESP8266 Sensor Module
-  
+
   Must use ESP8266 Arduino from:
     https://github.com/esp8266/Arduino
   Works great with Adafruit's Huzzah ESP board:
@@ -20,7 +20,7 @@
 
 // DHT 11 sensor
 #define DHTPIN D7
-#define DHTTYPE DHT11 
+#define DHTTYPE DHT11
 
 // WiFi parameters
 #define WLAN_SSID       "EmbedNet2"
@@ -55,10 +55,10 @@ const char MQTT_PASSWORD[] = AIO_KEY;
 Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, AIO_SERVERPORT, MQTT_CLIENTID, MQTT_USERNAME, MQTT_PASSWORD);/****************************** Feeds ***************************************/
 
 // Setup feeds for temperature & humidity
-const char TEMPERATURE_FEED[]  = AIO_USERNAME "/feeds/temperature";
+const char TEMPERATURE_FEED[]  = AIO_USERNAME "/feeds/temp2";
 Adafruit_MQTT_Publish temperature = Adafruit_MQTT_Publish(&mqtt, TEMPERATURE_FEED);
 
-const char HUMIDITY_FEED[]  = AIO_USERNAME "/feeds/humidity";
+const char HUMIDITY_FEED[]  = AIO_USERNAME "/feeds/humid2";
 Adafruit_MQTT_Publish humidity = Adafruit_MQTT_Publish(&mqtt, HUMIDITY_FEED);
 
 /*************************** Sketch Code ************************************/
@@ -96,28 +96,34 @@ void setup() {
 void loop() {
 
   // ping adafruit io a few times to make sure we remain connected
-  if(! mqtt.ping(3)) {
+  if (! mqtt.ping(3)) {
     // reconnect to adafruit io
-    if(! mqtt.connected())
+    if (! mqtt.connected())
       connect();
   }
 
   // Grab the current state of the sensor
-  int humidity_data = (int)dht.readHumidity();
-  int temperature_data = (int)dht.readTemperature();
+  double humidity_data = (double)dht.readHumidity();
+  double temperature_data = (double)dht.readTemperature();
 
   // Publish data
   if (! temperature.publish(temperature_data))
+  {
     Serial.println(F("Failed to publish temperature"));
+    Serial.println(temperature_data);
+  }
   else
     Serial.println(F("Temperature published!"));
 
   if (! humidity.publish(humidity_data))
+  {
     Serial.println(F("Failed to publish humidity"));
+    Serial.println(humidity_data);
+  }
   else
     Serial.println(F("Humidity published!"));
 
-  // Repeat every 10 seconds
+  // Repeat every 5 seconds
   delay(10000);
 
 }
@@ -141,7 +147,7 @@ void connect() {
       default: Serial.println(F("Connection failed")); break;
     }
 
-    if(ret >= 0)
+    if (ret >= 0)
       mqtt.disconnect();
 
     Serial.println(F("Retrying connection..."));

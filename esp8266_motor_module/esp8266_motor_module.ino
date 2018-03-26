@@ -1,16 +1,12 @@
 /***************************************************
-  Adafruit ESP8266 Lamp Controller Module
+  Adafruit ESP8266 Motor Controller Module 
+ 
+ Given variables 
+ TEMP DESIRED 22 degree
 
-  Must use ESP8266 Arduino from:
-    https://github.com/esp8266/Arduino
-  Works great with Adafruit's Huzzah ESP board:
-  ----> https://www.adafruit.com/product/2471
-  Adafruit invests time and resources providing this open source code,
-  please support Adafruit and open-source hardware by purchasing
-  products from Adafruit!
-  Written by Tony DiCola for Adafruit Industries.
-  Adafruit IO example additions by Todd Treece.
-  MIT license, all text above must be included in any redistribution
+ TEMP froum outside ?? 10 
+
+ Adjust the motor based on the given values
  ****************************************************/
 
 // Libraries
@@ -20,6 +16,7 @@
 
 //temperature
 #define TEMP_DESIRED  24
+#define TEMP_OUTSIDE  10
 #define TEMP_ALIEVE   false
 
 // WiFi parameters
@@ -145,15 +142,19 @@ void loop() {
       Serial.print(F("Received temp: "));
       Serial.println(x);
 
-      if (x >= TEMP_DESIRED)
+      if (x < TEMP_DESIRED)
       {
+        //turn on
         analogWrite(motor_a_speed, motorASpeed);
         digitalWrite(motor_a_dir, 0);
+        Serial.print(F("Turning on: "));
       }
-      else if (x < TEMP_DESIRED)
+      else if (x >= TEMP_OUTSIDE)
       {
+        //turn off 
         analogWrite(motor_a_speed, motorASpeed);
         digitalWrite(motor_a_dir, 1);
+        Serial.print(F("Turning off: "));
       }
     }
   }
@@ -182,8 +183,7 @@ void connect() {
       mqtt.disconnect();
 
     Serial.println(F("Retrying connection..."));
-    delay(5000);
-
+    delay(5000); 
   }
 
   Serial.println(F("Adafruit IO Connected!"));
