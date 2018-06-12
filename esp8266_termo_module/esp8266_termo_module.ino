@@ -22,9 +22,10 @@
 #define DHTPIN D7
 #define DHTTYPE DHT11
 
-// WiFi parameters
-#define WLAN_SSID       "EmbedNet2"
-#define WLAN_PASS       "betonprint"
+// WiFi parameters vk47xs5d r6qgh6f4
+
+#define WLAN_SSID       "vk47xs5d"
+#define WLAN_PASS       "r6qgh6f4"
 
 // Adafruit IO
 #define AIO_SERVER      "io.adafruit.com"
@@ -55,10 +56,10 @@ const char MQTT_PASSWORD[] = AIO_KEY;
 Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, AIO_SERVERPORT, MQTT_CLIENTID, MQTT_USERNAME, MQTT_PASSWORD);/****************************** Feeds ***************************************/
 
 // Setup feeds for temperature & humidity
-const char TEMPERATURE_FEED[]  = AIO_USERNAME "/feeds/temp2";
+const char TEMPERATURE_FEED[]  = AIO_USERNAME "/feeds/temp1";
 Adafruit_MQTT_Publish temperature = Adafruit_MQTT_Publish(&mqtt, TEMPERATURE_FEED);
 
-const char HUMIDITY_FEED[]  = AIO_USERNAME "/feeds/humid2";
+const char HUMIDITY_FEED[]  = AIO_USERNAME "/feeds/humid1";
 Adafruit_MQTT_Publish humidity = Adafruit_MQTT_Publish(&mqtt, HUMIDITY_FEED);
 
 /*************************** Sketch Code ************************************/
